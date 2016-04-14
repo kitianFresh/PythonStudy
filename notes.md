@@ -18,7 +18,7 @@
           eg：翻转一个字符串 s[::-1] 
     迭代：for ele in Iterable:
     列表生成器：[x*x for x in range() if x]
-    *生成器generator：为了*动态生成列表从而节省内存*,一边循环一边计算,也即是说generator保存的是列表元素的生成算法;
+    *生成器generator*：为了*动态生成列表从而节省内存*,一边循环一边计算,也即是说generator保存的是列表元素的生成算法;
      把[]改为()；g = (x*x for x in range()) next(g)；复杂的算法可以用一个generator函数来完成，每一次next(g)执行就会到yeild
         可以直接作用于for循环的数据类型有以下几种：
         一类是集合数据类型，如list、tuple、dict、set、str等；
