@@ -37,4 +37,39 @@
     匿名函数 lambda
     **装饰器**(Python 提供了语言级别的装饰器模型，在Java中通过继承实现)
     偏函数
+	
+#面向对象：
+    动态语言的鸭子类型特点决定了继承不像静态语言那样是必须的，多态中传递的参数不一定是父类型对象，只要他实现同种方法
+	对象实例允许动态绑定实例属性和方法；
+	__slot__:限定能绑定的属性
+	@property:可以实现属性的直接访问，但同时可以进行属性检查，相当于装饰器
+	继承过程中的父类调用可以显示SuperClass.__init__也可以用super()
+	The __init__ method of our Employee class explicitly invokes the __init__method of the 
+	Person class. We could have used super instead. super().__init__(first, last) is 
+	automatically replaced by a call to the superclasses method, in this case __init__:
+    def __init__(self, first, last, staffnum):
+        super().__init__(first, last)
+        self.staffnumber = staffnum
+	Please note that we used super() without arguments. This is only possible in Python3. 
+	We could have written "super(Employee, self).__init__(first, last, age)" which still 
+	works in Python3 and is compatible with Python2.
+	type和class:class的创建本质上是由type完成的，type(classname, superclasses, attributedict)
+	能够动态创建类；type是类的创建者，因此object是type的实例，同时type继承自object，所以
+	isinstance(type, object)和isinstance(object, type)都为真。当type被调用，type.__call__()会调
+	type.__new__(typeclass, classname, superclass,attributedict)
+	type.__init__(cls, classname, superclasses, attributedict)
+	class Robot:
+    counter = 0
+    def __init__(self, name):
+        self.name = name
+    def sayHello(self):
+        return "Hi, I am " + self.name
+    def Rob_init(self, name):
+        self.name = name
+    Robot2 = type("Robot2", 
+              (), 
+              {"counter":0, 
+               "__init__": Rob_init,
+               "sayHello": lambda self: "Hi, I am " + self.name})
+    Robot和Robot2是一样的
     
