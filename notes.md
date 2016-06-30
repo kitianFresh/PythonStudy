@@ -73,4 +73,3 @@
                "__init__": Rob_init,
                "sayHello": lambda self: "Hi, I am " + self.name})
     Robot和Robot2是一样的
-    
