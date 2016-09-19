@@ -41,20 +41,20 @@ UnicodeDecodeError: 'ascii' codec can't decode byte 0xe7 in position 0: ordinal 
 >>> 
 >>> 
 >>> str_b = b'田'
-	>>> type(str_b)
-	 <type 'str'>
-	 >>> len(str_b)
-	 3
-	 >>> str_b
-	 '\xe7\x94\xb0'
-	 >>> repr(str_b)
-	 "'\\xe7\\x94\\xb0'"
-	 >>> print(str_b)
-	 田
-	 >>> str(str_b)
-	 '\xe7\x94\xb0'
-	 >>> str_b.__str__()
-	 '\xe7\x94\xb0'
+>>> type(str_b)
+<type 'str'>
+>>> len(str_b)
+3
+>>> str_b
+'\xe7\x94\xb0'
+>>> repr(str_b)
+"'\\xe7\\x94\\xb0'"
+>>> print(str_b)
+田
+>>> str(str_b)
+'\xe7\x94\xb0'
+>>> str_b.__str__()
+'\xe7\x94\xb0'
 
 ```
 在python2中，直接定义一个字符串字面量，他的类型是str，但这并不是逻辑意义上的字符串，因为很显然，按照程序逻辑上的意义，'田'的长度时1而不是3;
@@ -103,21 +103,104 @@ UnicodeEncodeError: 'ascii' codec can't encode character u'\u7530' in position 0
 
 ```python
 >>> print(str_unicode)
-	田
-	>>> print(str_unicode.encode('utf8'))
-	田
-	>>> print(str_unicode.encode('gbk'))
-	��
-	>>> type(str_unicode.encode('utf8'))
-	<type 'str'>
-	>>> type(str_unicode.encode('gbk'))
-	<type 'str'>
-
+田
+>>> print(str_unicode.encode('utf8'))
+田
+>>> print(str_unicode.encode('gbk'))
+��
+>>> type(str_unicode.encode('utf8'))
+<type 'str'>
+>>> type(str_unicode.encode('gbk'))
+<type 'str'>
 ```
 str\_unicode经过encode后，类型又是str了，并且当byte-string和实际默认编码不符合时，例如gbk和默认的utf8不符合，就会出现乱码了;
 
 ##Python3
+```python
+>>> str_byte = '田'
+>>> type(str_byte)
+<class 'str'>
+>>> len(str_byte)
+1
+>>> str_byte
+'田'
+>>> repr(str_byte)
+"'田'"
+>>> print(str_byte)
+田
+>>> str(str_byte)
+Traceback (most recent call last):
+ File "<stdin>", line 1, in <module>
+ TypeError: 'bytes' object is not callable
+>>> str_byte.__str__()
+'田'
+>>> import sys
+>>> sys.getdefaultencoding()
+'utf8'
+>>> str_unicode = u'田'
+>>> len(str_unicode)
+1
+>>> str_unicode
+'田'
+>>> repr(str_unicode)
+"'田'"
+>>> print(str_unicode)
+田
+>>> str(str_unicode)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 'str' object is not callable
+>>> str_unicode.__str__()
+'田'
+>>> str_u = u'\u7530'
+>>> str_u
+'田'
+>>> repr(str_u)
+"'田'"
+```
+我们发现在Python3中，代码中书写的字符串字面常量都变成了class str类型，这个class str其实对应Python2中的type unicode类型，并且没有了str()函数可以调用;
 
+
+```python
+>>> str_b = b'田'
+  File "<stdin>", line 1
+SyntaxError: bytes can only contain ASCII literal characters.
+>>> str_b = b'tian'
+>>> type(str_b)
+<class 'bytes'>
+>>> str_b = b'\xe7\x94\xb0'
+>>>len(str_b)
+3
+>>> str_b.decode('utf-8')
+'田'
+>>> type(str_b.decode('utf-8'))
+<class 'str'>
+>>> frame = bytearray()
+>>> type(frame)
+<class 'bytearray'>
+>>> frame.append(0xe7)
+>>> frame.append(0x94)
+>>> frame.append(0xb0)
+>>> frame.decode('utf-8')
+'田'
+
+```
+那么Python2中的byte-string类型即type str在Python3中对应的是class bytes;不过，在Python3中，加b前缀的书写方式已经默认不能包含非ascii字符了;但是Python2和Python3都有bytearray类型;
+
+最后，我们理清一下Python的字符串演进过程
+演进过程：
+|××××××××××| Python2   |   Python3   |
+|:--------:|:--------: | :---------: |
+| byte-string | type str  | class bytes |
+| unicode-string | type unicode | class str |
+| bytearray | type bytearray | class bytearray |
+书写方式：
+|××××××××| byte-string | unicode-string | bytearray |
+|:-------:|:-----------:|:--------------:|:---------:|
+| Python2 |  无前缀u    |  加前缀u       | bytearray() |
+| Python3 |  加前缀b(只支持ascii)| 加或者不加u| bytearray()|
+
+实际上bytearray和byte-string等价;
 
 
 
