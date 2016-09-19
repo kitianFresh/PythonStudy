@@ -199,10 +199,10 @@ bytearray | type bytearray | class bytearray
 
 书写方式：
 
- |××××××××| byte-string | unicode-string | bytearray |
- |:-------:|:-----------:|:--------------:|:---------:|
- | Python2 | 无前缀u | 加前缀u | bytearray() |
- | Python3 | 加前缀b(只支持ascii) | 加或者不加u | bytearray() |
+××××××××| byte-string | unicode-string | bytearray
+:-------:|:-----------:|:--------------:|:---------:
+Python2 | 无前缀u | 加前缀u | bytearray()
+Python3 | 加前缀b(只支持ascii) | 加或者不加u | bytearray()
 
 实际上bytearray和byte-string等价;
 
