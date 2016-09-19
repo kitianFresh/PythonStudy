@@ -191,11 +191,11 @@ SyntaxError: bytes can only contain ASCII literal characters.
 
 演进过程：
 
- | ×××××××××× | Python2 | Python3 |
- |:--------:|:--------: | :---------: |
- | byte-string | type str  | class bytes |
- | unicode-string | type unicode | class str |
- | bytearray | type bytearray | class bytearray |
+×××××××××× | Python2 | Python3
+:--------:|:--------: | :---------:
+byte-string | type str  | class bytes
+unicode-string | type unicode | class str
+bytearray | type bytearray | class bytearray
 
 书写方式：
 
