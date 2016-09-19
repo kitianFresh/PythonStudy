@@ -10,6 +10,117 @@
 
   一个字符串技巧： 'c'\*n 表示'c'重复n次 当n = 3，则表示'ccc';
 
+#Python2 和 Python3的字符串编码问题
+
+##Python2
+```python
+>>> import sys
+>>> sys.getdefaultencoding()
+'ascii'
+>>> str_byte = '田'
+>>> type(str_byte)
+<type 'str'>
+>>> len(str_byte)
+3
+>>> str_byte
+'\xe7\x94\xb0'
+>>> repr(str_byte)
+"'\\xe7\\x94\\xb0'"
+>>> print(str_byte)
+田
+>>> str(str_byte)
+'\xe7\x94\xb0'
+>>> str_byte.__str__()
+'\xe7\x94\xb0'
+>>> 
+>>> 
+>>> str_byte.encode('utf-8')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xe7 in position 0: ordinal not in range(128)
+>>> 
+>>> 
+>>> str_b = b'田'
+	>>> type(str_b)
+	 <type 'str'>
+	 >>> len(str_b)
+	 3
+	 >>> str_b
+	 '\xe7\x94\xb0'
+	 >>> repr(str_b)
+	 "'\\xe7\\x94\\xb0'"
+	 >>> print(str_b)
+	 田
+	 >>> str(str_b)
+	 '\xe7\x94\xb0'
+	 >>> str_b.__str__()
+	 '\xe7\x94\xb0'
+
+```
+在python2中，直接定义一个字符串字面量，他的类型是str，但这并不是逻辑意义上的字符串，因为很显然，按照程序逻辑上的意义，'田'的长度时1而不是3;
+这说明python2中的str类型实际上是byte-string，也就是单纯的字节对象，并且按照字节数组处理而不是逻辑意义上的字符串处理;
+为什么这里python内部存储的str\_byte的值是\xe7\x94\xb0,因为在你打出'田'字的时候，首先被输入法处理，此时输入法按照系统编码utf8来存储'田'即\xe7\x94\xb0,然后送给python2解释器，Python2解释器就会拿到字节数组[s, t, r, \_, b, y, t, e, ' ', =, ' ', \xe7, \x94, \xb0],然后进行语法解析，知道这是字符串赋值语句，并把str\_byte当成str对象来处理，内部存储为\xe7\x94\xb0;
+
+另外，str\_byte本身其实会被解释为str(str\_byte),而str(object)这个built in function又调用object.\_\str\_\_()(当没有encoding和error参数的时候);
+
+再来看print(str\_byte),print函数接受字节数组，然后按照系统默认编码打印出这个字符串，因为都是utf8，所以可以打印;
+
+最后的str\_b的加b前缀的写法和不加前缀等价的;
+
+```python
+>>> str_unicode = u'田'
+>>> type(str_unicode)
+<type 'unicode'>
+>>> len(str_unicode)
+1
+>>> str_unicode
+u'\u7530'
+>>> repr(str_unicode)
+"u'\\u7530'"
+>>> str(str_unicode)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+UnicodeEncodeError: 'ascii' codec can't encode character u'\u7530' in position 0: ordinal not in range(128)
+>>> print(str_unicode)
+田
+>>> str_unicode.__str__()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+UnicodeEncodeError: 'ascii' codec can't encode character u'\u7530' in position 0: ordinal not in range(128)
+
+>>> reload(sys)
+<module 'sys' (built-in)>
+>>> sys.setdefaultencoding('utf-8')
+>>> str(str_unicode)
+'\xe7\x94\xb0'
+```
+我们发现在字符串字面量前面加上u前缀后，str\_unicode就是unicode类型，并且使用len()求长度也得到了正确的逻辑长度1;
+可是在使用str(object)作用到str\_unicode时，结果尽然发生了ascii encode错误，这充分说明python2内部在做强制转换，将unicode类型转换成byte-string类型，并且采用了系统默认编码sys.getdefaultencoding()='ascii';党我们通过sys.setdefaultencoding设置成符合的utf8编码后，错误消失了，这说明我们推测正确;
+
+这里显然是Python2解释器接读取到[s, t, r, \_, u, n, i, c, o, d, e, ' ', =, ' ', u, \xe7, \x94, \xb0],然后解析到u表明是要作为unicode存储，因此str\_unicode就存储成了Python2内部的Unicode码，也就是utf16，\u7530;
+
+也就是说python2 内部的Unicode字符串才是符合程序逻辑意义的字符串;
+
+```python
+>>> print(str_unicode)
+	田
+	>>> print(str_unicode.encode('utf8'))
+	田
+	>>> print(str_unicode.encode('gbk'))
+	��
+	>>> type(str_unicode.encode('utf8'))
+	<type 'str'>
+	>>> type(str_unicode.encode('gbk'))
+	<type 'str'>
+
+```
+str\_unicode经过encode后，类型又是str了，并且当byte-string和实际默认编码不符合时，例如gbk和默认的utf8不符合，就会出现乱码了;
+
+##Python3
+
+
+
+
 #关于list []和tuple ()：
   list可以存储不同数据类型的元素（原因是Python是动态类型的语言啊），C++ Java中的List就不行;
 
@@ -83,7 +194,7 @@ def __init__(self, first, last, staffnum):
 
   type是类的创建者，因此object是type的实例，同时type继承自object，所以 isinstance(type, object)和isinstance(object, type)都为真。当type被调用，type.\_\_call\_\_()会调 type.\_\_new\_\_(typeclass, classname, superclass,attributedict) type.\_\_init\_\_(cls, classname, superclasses, attributedict)
 	
-```Python			  
+```Python
 class Robot:
     counter = 0
     def __init__(self, name):
