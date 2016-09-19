@@ -188,17 +188,21 @@ SyntaxError: bytes can only contain ASCII literal characters.
 那么Python2中的byte-string类型即type str在Python3中对应的是class bytes;不过，在Python3中，加b前缀的书写方式已经默认不能包含非ascii字符了;但是Python2和Python3都有bytearray类型;
 
 最后，我们理清一下Python的字符串演进过程
+
 演进过程：
-|××××××××××| Python2   |   Python3   |
-|:--------:|:--------: | :---------: |
-| byte-string | type str  | class bytes |
-| unicode-string | type unicode | class str |
-| bytearray | type bytearray | class bytearray |
+
+ | ×××××××××× | Python2 | Python3 |
+ |:--------:|:--------: | :---------: |
+ | byte-string | type str  | class bytes |
+ | unicode-string | type unicode | class str |
+ | bytearray | type bytearray | class bytearray |
+
 书写方式：
-|××××××××| byte-string | unicode-string | bytearray |
-|:-------:|:-----------:|:--------------:|:---------:|
-| Python2 |  无前缀u    |  加前缀u       | bytearray() |
-| Python3 |  加前缀b(只支持ascii)| 加或者不加u| bytearray()|
+
+ |××××××××| byte-string | unicode-string | bytearray |
+ |:-------:|:-----------:|:--------------:|:---------:|
+ | Python2 | 无前缀u | 加前缀u | bytearray() |
+ | Python3 | 加前缀b(只支持ascii) | 加或者不加u | bytearray() |
 
 实际上bytearray和byte-string等价;
 
