@@ -10,9 +10,9 @@
 
   一个字符串技巧： 'c'\*n 表示'c'重复n次 当n = 3，则表示'ccc';
 
-#Python2 和 Python3的字符串编码问题
-
-##Python2
+##Python2 和 Python3的字符串编码问题
+###Python2
+&emsp;&emsp;我们先来看看Python2对不同方式定义的字面字符串的处理模式：
 ```python
 >>> import sys
 >>> sys.getdefaultencoding()
@@ -57,16 +57,19 @@ UnicodeDecodeError: 'ascii' codec can't decode byte 0xe7 in position 0: ordinal 
 '\xe7\x94\xb0'
 
 ```
-在Python2中，直接定义一个字符串字面量，他的类型是type str，但这并不是逻辑意义上的字符串，因为很显然，按照程序逻辑上的意义，'田'的长度是1而不是3;
-这说明Python2中的str类型实际上是byte-string，也就是单纯的字节对象，并且按照字节数组处理而不是逻辑意义上的字符串处理;
-为什么这里Python2内部存储的str\_byte的值是\xe7\x94\xb0,因为在你打出'田'字的时候，首先被输入法处理，此时输入法按照系统编码utf8来存储'田'即\xe7\x94\xb0,然后送给python2解释器，Python2解释器就会拿到字节数组[s, t, r, \_, b, y, t, e, ' ', =, ' ', \xe7, \x94, \xb0],然后进行语法解析，知道这是字符串赋值语句，并把str\_byte当成str对象来处理，内部存储为\xe7\x94\xb0;
+&emsp;&emsp;在Python2中，直接定义一个字符串字面量，他的类型是type str，但这并不是逻辑意义上的字符串，因为很显然，按照程序逻辑上的意义，'田'的长度是1而不是3;
 
-另外，当再次输入str\_byte，他本身其实会被解释为str(str\_byte),而Python2中只有一个[str(object='')](https://docs.python.org/2.7/library/functions.html#str)这个built in function又调用object.\_\str\_\_()(在Python3中，增加了[str(object=b'',encoding='utf-8',error='strict')](https://docs.python.org/3.5/library/stdtypes.html#str)，当没有encoding和error参数的时候,str(object)返回object.\_\_str\_\_();当有参数时，object需要是bytes-like object(e.g. bytes or bytearray));
+&emsp;&emsp;这说明Python2中的str类型实际上是byte-string，也就是单纯的字节数组对象，并且按照字节数组处理而不是逻辑意义上的字符串处理;
 
-再来看print(str\_byte),print函数接受字节数组，然后按照系统默认编码打印出这个字符串，因为都是utf8，所以可以打印;
+&emsp;&emsp;为什么这里Python2内部存储的str\_byte的值是\xe7\x94\xb0,因为在你打出'田'字的时候，首先被输入法处理，此时输入法按照系统编码utf8（你可以在shell中使用env查看LANG的值）来存储'田'即\xe7\x94\xb0,然后送给Python2解释器和虚拟终端控制程序，Python2解释器就会拿到字节数组[s, t, r, \_, b, y, t, e, ' ', =, ' ', \xe7, \x94, \xb0],对解释器来讲，这是一个字符串，Python2解释器按照默认编码sys.getdefaultencoding()=ascii解码成字符串，然后进行语法解析，知道这是字符串赋值语句，并把str\_byte当成str对象来处理，内部存储为\xe7\x94\xb0;而虚拟终端控制程序直接以默认编码utf8方式看待\xe7\x94\xb0，解码是汉子'田'，找到显卡map的位图，然后将位图数据发送给显卡，显卡显示'田'。
 
-最后的str\_b的加b前缀的写法和不加前缀等价的;
+&emsp;&emsp;另外，当再次输入str\_byte，他本身其实会被解释为str(str\_byte),而Python2中只有一个[str(object='')](https://docs.python.org/2.7/library/functions.html#str)这个built in function，他又调用object.\_\str\_\_()。(在Python3中，增加了[str(object=b'',encoding='utf-8',error='strict')](https://docs.python.org/3.5/library/stdtypes.html#str)，当没有encoding和error参数的时候,str(object)返回object.\_\_str\_\_();当有参数时，object需要是bytes-like object(e.g. bytes or bytearray));
 
+&emsp;&emsp;再来看print(str\_byte),print函数接受字节数组，然后按照系统默认编码打印出这个字符串，因为都是utf8，所以可以打印;
+
+&emsp;&emsp;最后的str\_b的加b前缀的写法和str_byte的不加前缀写法是等价的，都是byte-string。
+
+&emsp;&emsp;下面看看\_\_str\_\_()和\_\_repr\_\_()的区别：
 ```python
 >>> str(777)
 '777'
@@ -97,15 +100,15 @@ u'\u7530'
 >>> print(eval("u'\\u7530'"))
 田
 ```
-Python中str() print()都会调用object.\_\_str\_\_(), repr()会调用object.\_\_repr\_\_();
- [\_\_str\_\_()和\_\_repr\_\_()的区别](http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python/2626364#2626364):
- 1. \_\_repr\_\_() goal is to be unambiguous for computer and programmer,which python called official representation of objects, it is used for eval() that can evaluate Python's expression
- 2. \_\_str\_\_() goal is to be readable for human, which python called informal nicely printable string of objects
- 3. Container’s \_\_str\_\_ uses contained objects’ \_\_repr\_\_
- 4. Since \_\_repr\_\_ provides a backup for \_\_str\_\_, if you can only write one, start with \_\_repr\_\_, if you override \_\_repr\_\_, that's ALSO used for \_\_str\_\_, but not vice versa
-
+&emsp;&emsp;Python中str() print()都会调用object.\_\_str\_\_(), repr()会调用object.\_\_repr\_\_();
+ &emsp;&emsp;下面是[\_\_str\_\_()和\_\_repr\_\_()的区别](http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python/2626364#2626364):
  
+  1. \_\_repr\_\_() goal is to be unambiguous for computer and programmer,which python called official representation of objects, it is used for eval() that can evaluate Python's expression
+  2.  \_\_str\_\_() goal is to be readable for human, which python called informal nicely printable string of objects
+  3. Container’s \_\_str\_\_ uses contained objects’ \_\_repr\_\_
+  4. Since \_\_repr\_\_ provides a backup for \_\_str\_\_, if you can only write one, start with \_\_repr\_\_, if you override \_\_repr\_\_, that's ALSO used for \_\_str\_\_, but not vice versa
 
+&emsp;&emsp;最后一种字符串字面量的写法:
 ```python
 >>> str_unicode = u'田'
 >>> type(str_unicode)
@@ -133,13 +136,13 @@ UnicodeEncodeError: 'ascii' codec can't encode character u'\u7530' in position 0
 >>> str(str_unicode)
 '\xe7\x94\xb0'
 ```
-我们发现在字符串字面量前面加上u前缀后，str\_unicode就是unicode类型，并且使用len()求长度也得到了正确的逻辑长度1;
-可是在使用str(object)作用到str\_unicode时，结果尽然发生了ascii encode错误，这充分说明python2内部在做强制转换，将unicode类型转换成byte-string类型，并且采用了系统默认编码sys.getdefaultencoding()='ascii';党我们通过sys.setdefaultencoding设置成符合的utf8编码后，错误消失了，这说明我们推测正确;
+&emsp;&emsp;我们发现在字符串字面量前面加上u前缀后，str\_unicode是unicode类型，并且使用len()求长度也得到了正确的逻辑长度1;
 
-这里显然是Python2解释器接读取到[s, t, r, \_, u, n, i, c, o, d, e, ' ', =, ' ', u, \xe7, \x94, \xb0],然后解析到u表明是要作为unicode存储，因此str\_unicode就存储成了Python2内部的Unicode码，也就是utf16，\u7530;
+&emsp;&emsp;可是在使用str(object)作用到str\_unicode时，结果尽然发生了ascii encode错误，这充分说明Python2内部在做强制转换，将unicode类型转换成byte-string类型，并且采用了系统默认编码。sys.getdefaultencoding()='ascii';当我们通过sys.setdefaultencoding设置成符合的utf8编码后，错误消失了，这说明我们推测正确;
 
-也就是说python2 内部的Unicode字符串才是符合程序逻辑意义的字符串;
+&emsp;&emsp;这里显然是Python2解释器接读取到[s, t, r, \_, u, n, i, c, o, d, e, ' ', =, ' ', u, \xe7, \x94, \xb0],然后解析到u表明是要作为unicode存储，因此str\_unicode就存储成了Python2内部的Unicode码，也就是utf16，\u7530；也就是说python2 内部的Unicode字符串才是符合程序逻辑意义的字符串;
 
+&emsp;&emsp;下面是unicode-string 和 byte-string的相互转换：
 ```python
 >>> print(str_unicode)
 田
@@ -152,9 +155,9 @@ UnicodeEncodeError: 'ascii' codec can't encode character u'\u7530' in position 0
 >>> type(str_unicode.encode('gbk'))
 <type 'str'>
 ```
-str\_unicode经过encode后，类型又是str了，并且当byte-string和实际默认编码不符合时，例如gbk和默认的utf8不符合，就会出现乱码了;
+&emsp;&emsp;str\_unicode经过encode后，类型又是str了，并且当byte-string和实际默认编码不符合时，例如gbk和默认的utf8不符合，就会出现乱码了;
 
-##Python3
+###Python3
 ```python
 >>> str_byte = '田'
 >>> type(str_byte)
@@ -163,43 +166,58 @@ str\_unicode经过encode后，类型又是str了，并且当byte-string和实际
 1
 >>> str_byte
 '田'
+>>> str(str_byte)
+'田'
 >>> repr(str_byte)
 "'田'"
->>> print(str_byte)
-田
->>> str(str_byte)
-Traceback (most recent call last):
- File "<stdin>", line 1, in <module>
- TypeError: 'bytes' object is not callable
->>> str_byte.__str__()
-'田'
->>> import sys
->>> sys.getdefaultencoding()
-'utf8'
 >>> str_unicode = u'田'
->>> len(str_unicode)
-1
+>>> type(str_unicode)
+<class 'str'>
 >>> str_unicode
+'田'
+>>> str(str_unicode)
 '田'
 >>> repr(str_unicode)
 "'田'"
 >>> print(str_unicode)
 田
->>> str(str_unicode)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: 'str' object is not callable
+>>> print(str_byte)
+田
+>>> str_byte.__str__()
+'田'
 >>> str_unicode.__str__()
 '田'
 >>> str_u = u'\u7530'
 >>> str_u
 '田'
+>>> str(str_u)
+'田'
 >>> repr(str_u)
 "'田'"
+>>> print(str_u)
+田
+>>> str_u_ = '\u7530'
+>>> str_u_
+'田'
+>>> import sys
+>>> sys.getdefaultencoding()
+'utf-8'
+>>> type(str_unicode)
+<class 'str'>
+>>> type(str_u)
+<class 'str'>
+>>> type(str_u_)
+<class 'str'>
+>>> len(str_unicode)
+1
+>>> len(str_u)
+1
+>>> len(str_u_)
+1
 ```
-我们发现在Python3中，代码中书写的字符串字面常量都变成了class str类型，这个class str其实对应Python2中的type unicode类型，并且没有了str()函数可以调用;
+&emsp;&emsp;我们发现在Python3中，代码中书写的字符串字面常量都变成了class str类型，这个class str其实对应Python2中的type unicode类型。
 
-
+&emsp;&emsp;再来寻找Python3中的byte-string类型:
 ```python
 >>> str_b = b'田'
   File "<stdin>", line 1
@@ -222,28 +240,27 @@ SyntaxError: bytes can only contain ASCII literal characters.
 >>> frame.append(0xb0)
 >>> frame.decode('utf-8')
 '田'
-
 ```
-那么Python2中的byte-string类型即type str在Python3中对应的是class bytes;不过，在Python3中，加b前缀的书写方式已经默认不能包含非ascii字符了;但是Python2和Python3都有bytearray类型;
+&emsp;&emsp;那么Python2中的byte-string类型即type str在Python3中对应的是class bytes;不过，在Python3中，加b前缀的书写方式已经默认不能包含非ascii字符了;但是Python2和Python3都有bytearray类型;
 
-最后，我们理清一下Python的字符串演进过程
+最后，我们理清一下Python的字符串演进过程：
 
 演进过程：
 
 ×××××××××× | Python2 | Python3
 :--------:|:--------: | :---------:
-byte-string | type str  | class bytes
-unicode-string | type unicode | class str
-bytearray | type bytearray | class bytearray
+**byte-string** | type str  | class bytes
+**unicode-string** | type unicode | class str
+**bytearray** | type bytearray | class bytearray
 
 书写方式：
-
 ××××××××| byte-string | unicode-string | bytearray
 :-------:|:-----------:|:--------------:|:---------:
-Python2 | 无前缀u | 加前缀u | bytearray()
+Python2 | 无前缀u或加前缀b | 加前缀u | bytearray()
 Python3 | 加前缀b(只支持ascii) | 加或者不加u | bytearray()
 
-实际上bytearray和byte-string等价;
+&emsp;&emsp;实际上bytearray和byte-string等价;
+
 
 
 
