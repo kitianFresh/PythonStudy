@@ -97,12 +97,12 @@ u'\u7530'
 >>> print(eval("u'\\u7530'"))
 田
 ```
-Python中str() print()都会调用object.\_\_str\_\_(),repr()会调用object.\_\_repr\_\_();
-[\_\_str\_\_()和\_\_repr\_\_()的区别](http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python/2626364#2626364):
+Python中str() print()都会调用object.\_\_str\_\_(), repr()会调用object.\_\_repr\_\_();
+ [\_\_str\_\_()和\_\_repr\_\_()的区别](http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python/2626364#2626364):
  1. \_\_repr\_\_() goal is to be unambiguous for computer and programmer,which python called official representation of objects, it is used for eval() that can evaluate Python's expression
  2. \_\_str\_\_() goal is to be readable for human, which python called informal nicely printable string of objects
- 3. Container’s __str__ uses contained objects’ __repr__
- 4. Since \_\_repr\_\_ provides a backup for \_\_str\_\_, if you can only write one, start with \_\_repr\_\_, if you override __repr__, that's ALSO used for __str__, but not vice versa
+ 3. Container’s \_\_str\_\_ uses contained objects’ \_\_repr\_\_
+ 4. Since \_\_repr\_\_ provides a backup for \_\_str\_\_, if you can only write one, start with \_\_repr\_\_, if you override \_\_repr\_\_, that's ALSO used for \_\_str\_\_, but not vice versa
 
  
 
