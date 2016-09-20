@@ -67,7 +67,7 @@ UnicodeDecodeError: 'ascii' codec can't decode byte 0xe7 in position 0: ordinal 
 
 &emsp;&emsp;再来看print(str\_byte),print函数接受字节数组，然后按照系统默认编码打印出这个字符串，因为都是utf8，所以可以打印;
 
-&emsp;&emsp;最后的str\_b的加b前缀的写法和str_byte的不加前缀写法是等价的，都是byte-string。
+&emsp;&emsp;最后的str\_b的加b前缀的写法和str\_byte的不加前缀写法是等价的，都是byte-string。
 
 &emsp;&emsp;下面看看\_\_str\_\_()和\_\_repr\_\_()的区别：
 ```python
@@ -254,7 +254,8 @@ SyntaxError: bytes can only contain ASCII literal characters.
 **bytearray** | type bytearray | class bytearray
 
 书写方式：
-××××××××| byte-string | unicode-string | bytearray
+
+×××××××× | byte-string | unicode-string | bytearray
 :-------:|:-----------:|:--------------:|:---------:
 Python2 | 无前缀u或加前缀b | 加前缀u | bytearray()
 Python3 | 加前缀b(只支持ascii) | 加或者不加u | bytearray()
