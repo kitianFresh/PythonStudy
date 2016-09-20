@@ -57,15 +57,54 @@ UnicodeDecodeError: 'ascii' codec can't decode byte 0xe7 in position 0: ordinal 
 '\xe7\x94\xb0'
 
 ```
-在python2中，直接定义一个字符串字面量，他的类型是str，但这并不是逻辑意义上的字符串，因为很显然，按照程序逻辑上的意义，'田'的长度时1而不是3;
-这说明python2中的str类型实际上是byte-string，也就是单纯的字节对象，并且按照字节数组处理而不是逻辑意义上的字符串处理;
-为什么这里python内部存储的str\_byte的值是\xe7\x94\xb0,因为在你打出'田'字的时候，首先被输入法处理，此时输入法按照系统编码utf8来存储'田'即\xe7\x94\xb0,然后送给python2解释器，Python2解释器就会拿到字节数组[s, t, r, \_, b, y, t, e, ' ', =, ' ', \xe7, \x94, \xb0],然后进行语法解析，知道这是字符串赋值语句，并把str\_byte当成str对象来处理，内部存储为\xe7\x94\xb0;
+在Python2中，直接定义一个字符串字面量，他的类型是type str，但这并不是逻辑意义上的字符串，因为很显然，按照程序逻辑上的意义，'田'的长度是1而不是3;
+这说明Python2中的str类型实际上是byte-string，也就是单纯的字节对象，并且按照字节数组处理而不是逻辑意义上的字符串处理;
+为什么这里Python2内部存储的str\_byte的值是\xe7\x94\xb0,因为在你打出'田'字的时候，首先被输入法处理，此时输入法按照系统编码utf8来存储'田'即\xe7\x94\xb0,然后送给python2解释器，Python2解释器就会拿到字节数组[s, t, r, \_, b, y, t, e, ' ', =, ' ', \xe7, \x94, \xb0],然后进行语法解析，知道这是字符串赋值语句，并把str\_byte当成str对象来处理，内部存储为\xe7\x94\xb0;
 
-另外，str\_byte本身其实会被解释为str(str\_byte),而str(object)这个built in function又调用object.\_\str\_\_()(当没有encoding和error参数的时候);
+另外，当再次输入str\_byte，他本身其实会被解释为str(str\_byte),而Python2中只有一个[str(object='')](https://docs.python.org/2.7/library/functions.html#str)这个built in function又调用object.\_\str\_\_()(在Python3中，增加了[str(object=b'',encoding='utf-8',error='strict')](https://docs.python.org/3.5/library/stdtypes.html#str)，当没有encoding和error参数的时候,str(object)返回object.\_\_str\_\_();当有参数时，object需要是bytes-like object(e.g. bytes or bytearray));
 
 再来看print(str\_byte),print函数接受字节数组，然后按照系统默认编码打印出这个字符串，因为都是utf8，所以可以打印;
 
 最后的str\_b的加b前缀的写法和不加前缀等价的;
+
+```python
+>>> str(777)
+'777'
+>>> repr(777)
+'777'
+>>> 
+>>> str('Python')
+'Python'
+>>> repr('Python')
+"'Python'"
+>>> 
+>>> eval('Python')
+Traceback (most recent call last):
+File "<stdin>", line 1, in <module>
+  File "<string>", line 1, in <module>
+NameError: name 'Python' is not defined
+>>> eval("'Python'")
+'Python'
+>>> eval(u'\u7530')
+Traceback (most recent call last):
+File "<stdin>", line 1, in <module>
+  File "<string>", line 1
+	田
+	^
+SyntaxError: invalid syntax
+>>> eval("u'\\u7530'")
+u'\u7530'
+>>> print(eval("u'\\u7530'"))
+田
+```
+Python中str() print()都会调用object.\_\_str\_\_(),repr()会调用object.\_\_repr\_\_();
+[\_\_str\_\_()和\_\_repr\_\_()的区别](http://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python/2626364#2626364):
+ 1. \_\_repr\_\_() goal is to be unambiguous for computer and programmer,which python called official representation of objects, it is used for eval() that can evaluate Python's expression
+ 2. \_\_str\_\_() goal is to be readable for human, which python called informal nicely printable string of objects
+ 3. Container’s __str__ uses contained objects’ __repr__
+ 4. Since \_\_repr\_\_ provides a backup for \_\_str\_\_, if you can only write one, start with \_\_repr\_\_, if you override __repr__, that's ALSO used for __str__, but not vice versa
+
+ 
 
 ```python
 >>> str_unicode = u'田'
