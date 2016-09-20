@@ -63,7 +63,7 @@ UnicodeDecodeError: 'ascii' codec can't decode byte 0xe7 in position 0: ordinal 
 
 &emsp;&emsp;为什么这里Python2内部存储的str\_byte的值是\xe7\x94\xb0,因为在你打出'田'字的时候，首先被输入法处理，此时输入法按照系统编码utf8（你可以在shell中使用env查看LANG的值）来存储'田'即\xe7\x94\xb0,然后送给Python2解释器和虚拟终端控制程序，Python2解释器就会拿到字节数组[s, t, r, \_, b, y, t, e, ' ', =, ' ', \xe7, \x94, \xb0],对解释器来讲，这是一个字符串，Python2解释器按照默认编码sys.getdefaultencoding()=ascii解码成字符串，然后进行语法解析，知道这是字符串赋值语句，并把str\_byte当成str对象来处理，内部存储为\xe7\x94\xb0;而虚拟终端控制程序直接以默认编码utf8方式看待\xe7\x94\xb0，解码是汉子'田'，找到显卡map的位图，然后将位图数据发送给显卡，显卡显示'田'。
 
-&emsp;&emsp;另外，当再次输入str\_byte，他本身其实会被解释为str(str\_byte),而Python2中只有一个[str(object='')](https://docs.python.org/2.7/library/functions.html#str)这个built in function，他又调用object.\_\str\_\_()。(在Python3中，增加了[str(object=b'',encoding='utf-8',error='strict')](https://docs.python.org/3.5/library/stdtypes.html#str)，当没有encoding和error参数的时候,str(object)返回object.\_\_str\_\_();当有参数时，object需要是bytes-like object(e.g. bytes or bytearray));
+&emsp;&emsp;另外，当再次输入str\_byte，他本身其实会被解释为str(str\_byte),而Python2中只有一个[str(object='')](https://docs.python.org/2.7/library/functions.html#str)这个built in function，他又调用object.\_\_str\_\_()。(在Python3中，增加了[str(object=b'',encoding='utf-8',error='strict')](https://docs.python.org/3.5/library/stdtypes.html#str)，当没有encoding和error参数的时候,str(object)返回object.\_\_str\_\_();当有参数时，object需要是bytes-like object(e.g. bytes or bytearray));
 
 &emsp;&emsp;再来看print(str\_byte),print函数接受字节数组，然后按照系统默认编码打印出这个字符串，因为都是utf8，所以可以打印;
 
